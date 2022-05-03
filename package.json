@@ -1,0 +1,23 @@
+{
+  "name": "lazyfile-lru",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/lazyFileLRU.mjs",
+  "scripts": {
+    "clean": "rm -fr dist",
+    "build": "npm run build:esbuild; npm run build:worker",
+    "build:esbuild": "esbuild src/lazyFileLRU.ts --bundle --format=esm --outfile=dist/lazyFileLRU.mjs",
+    "build:worker": "esbuild src/adv_worker.ts --bundle --format=iife --outfile=dist/adv_worker.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "esbuild": "^0.14.28",
+    "h5wasm": "^0.4.1",
+    "mnemonist": "^0.39.0",
+    "typescript-lru-cache": "^1.2.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  }
+}
