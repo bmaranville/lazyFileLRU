@@ -31,7 +31,7 @@
                 <button id="get">get</button>
             </label>
         </div>
-        <div id="results"></div>
+        <pre id="results" style="overflow-y:scroll;"></pre>
         <script type="module">
             var worker;
 
@@ -40,9 +40,18 @@
                 worker = new Worker("./dist/adv_worker.js");
                 worker.addEventListener("message", function(event) {
                     console.log("EVENT:", event);
-                    let div = document.getElementById("results");
-                    div.innerHTML = "";
-                    div.innerHTML = `<pre>${JSON.stringify(event.data, null, 2)}</pre>`;
+                    let results_el = document.getElementById("results");
+                    results_el.innerHTML = "";
+                    const result_text = JSON.stringify(event.data, (k,v) => {
+                        if (typeof v === 'bigint') {
+                            return v.toString();
+                        }
+                        else if (ArrayBuffer.isView(v))  {
+                            return [...v];
+                        }
+                        return v;
+                    }, 2);
+                    results_el.innerText = result_text;
                 })
             } else {
                 console.log("Workers are not supported");
