@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <div>
+            <label>
+                requestChunkSize <input type="text" id="requestChunkSize" value="1024"/>
+            </label>
+        </div>
+        <div>
+            <label>
+                LRUSize: <input type="text" id="LRUSize" value="100" />
+            </label>
+        </div>
+        <div>
+            <label>File URL:
+                <input type="text" id="file_url" style="width:60em;" value="https://ncnr.nist.gov/pub/ncnrdata/candor/201909/nonims1/data/encoder_check218.nxs.cdr?gzip=false" />
+            </label>
+            <button id="load">load</button>
+        </div>
+        <div>
+            <label>Path:
+                <input type="text" id="path" style="width:40em;" value="/">
+                <button id="get">get</button>
+            </label>
+        </div>
+        <div id="results"></div>
+        <script type="module">
+            var worker;
+
+            if (window && window.Worker) {
+                // worker = new Worker("./dist/adv_worker.mjs", { type : 'module' } );
+                worker = new Worker("./dist/adv_worker.js");
+                worker.addEventListener("message", function(event) {
+                    console.log("EVENT:", event);
+                    let div = document.getElementById("results");
+                    div.innerHTML = "";
+                    div.innerHTML = `<pre>${JSON.stringify(event.data, null, 2)}</pre>`;
+                })
+            } else {
+                console.log("Workers are not supported");
+            }
+
+            document.getElementById("load").onclick = function() {
+                let url = document.getElementById("file_url").value;
+                let LRUSize = parseInt(document.getElementById("LRUSize").value, 10);
+                let requestChunkSize = parseInt(document.getElementById("requestChunkSize").value, 10);
+                worker.postMessage({action: "load", payload: {url, LRUSize, requestChunkSize}});
+            }
+            
+            function getter(payload={path: "entry"}) {
+                worker.postMessage({action: "get", payload});
+            }
+
+            document.getElementById("get").onclick = async function() {
+                let path = document.getElementById("path").value;
+                getter({path});
+                
+            }
+            window.getter = getter;
+            
+        </script>
+    </body>
+</html>
